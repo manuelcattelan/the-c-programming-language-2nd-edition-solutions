@@ -6,14 +6,14 @@
 #define MAXLINE 1000
 
 int readline(char line[]);
-void revline(char line[], int llen);
+void reverse(char line[], int llen);
 
 int main(void) {
   int llen;           /* length of the current line being scanned */
   char line[MAXLINE]; /* content of the current line being scanned */
   while ((llen = readline(line)) > 0) {
     if (llen > 1)
-      revline(line, llen);
+      reverse(line, llen);
     printf("%s", line);
   }
   return EXIT_SUCCESS;
@@ -35,7 +35,7 @@ int readline(char line[]) {
   return llen;
 }
 
-void revline(char line[], int llen) {
+void reverse(char line[], int llen) {
   int offset = line[llen - 1] == '\n' ? 1 : 0;
   for (int i = 0; i < (llen - offset) / 2; ++i) {
     char ctmp = line[i];

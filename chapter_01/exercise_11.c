@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define IN 1  /* state that represents being inside a word */
-#define OUT 0 /* state that represents being outside a word */
+enum boolean {
+  OUT, /* state that represents being inside a word */
+  IN   /* state that represents being outside a word */
+};
 
 int main(void) {
   int c;
