@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define IN 1       /* state that represents being inside a word */
+#define OUT 0      /* state that represents being outside a word */
+#define MAXWORD 10 /* maximum length for a word to be considered */
+
+int main(void) {
+  int c;
+  int wlen = 0;       /* length of the current word */
+  int wlenc[MAXWORD]; /* count of words for each considered word length */
+  int status = OUT;   /* tracks if we're currently inside a word or not */
+  for (int i = 0; i < MAXWORD; ++i)
+    wlenc[i] = 0;
+  while ((c = getchar()) != EOF) {
+    if (c == ' ' || c == '\t' || c == '\n') {
+      status = OUT;
+      if (wlen > 0 && wlen <= MAXWORD)
+        ++wlenc[wlen - 1];
+      wlen = 0;
+    } else {
+      if (status == OUT)
+        status = IN;
+      ++wlen;
+    }
+  }
+  /* Process the last word from input: this helps handle the case where input
+   * comes from a terminal emulator and the EOF signal (CTRL+D or CTRL+Z) has to
+   * be sent twice in order to actually be interpreted as such when there's
+   * other characters in the same input line. In that case, since there is no
+   * blank space, tab or newline after the word, it wouldn't be considered in
+   * the code above. */
+  if (wlen > 0 && wlen <= MAXWORD)
+    ++wlenc[wlen - 1];
+  for (int i = 0; i < MAXWORD; ++i) {
+    printf("\n%2d: ", i + 1);
+    for (int j = 0; j < wlenc[i]; ++j)
+      printf("█");
+    if (i != MAXWORD - 1)
+      printf("\n |");
+  }
+  return EXIT_SUCCESS;
+}
