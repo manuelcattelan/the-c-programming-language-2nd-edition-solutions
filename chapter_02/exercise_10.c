@@ -5,8 +5,9 @@ int lower(int c);
 
 int main(void) {
   int c;
-  while ((c = getchar()) != EOF)
+  while ((c = getchar()) != EOF) {
     printf("%c\n", lower(c));
+  }
   return EXIT_SUCCESS;
 }
 

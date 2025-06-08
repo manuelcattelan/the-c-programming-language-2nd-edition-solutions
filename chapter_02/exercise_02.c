@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAXLEN 1000 /* maximum length for string */
+#define MAX_STRING_LEN 1000
 
 int main(void) {
   int c;
-  int cc = 0;
-  int s[MAXLEN];
-  while (cc < MAXLEN - 1) {
-    if ((c = getchar()) != '\n')
-      if (c != EOF)
-        s[cc++] = c;
+  int c_pos = 0; /* character position inside the current line */
+  char s[MAX_STRING_LEN];
+  while (c_pos < MAX_STRING_LEN - 1) {
+    if ((c = getchar()) != '\n') {
+      if (c != EOF) {
+        s[c_pos++] = c;
+      }
+    }
   }
   return EXIT_SUCCESS;
 }
