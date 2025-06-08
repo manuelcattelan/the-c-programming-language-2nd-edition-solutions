@@ -1,66 +1,111 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-enum boolean {
-  OUT, /* state that represents being inside a word */
-  IN   /* state that represents being outside a word */
-};
+typedef enum {
+  /* Status that represents being outside a string or character constant */
+  OUTSIDE,
+  /* Status that represents being inside a string or character constant  */
+  INSIDE
+} Status;
 
 int main(void) {
   int c;
-  /* NOTE: there is no correct default value for the last seen character, but
-   * EOF is a good representation of the fact that no valid character has been
-   * read yet, making it a great choice for our usecase. */
-  int lc = EOF;
-  int status = OUT; /* tracks if we're currently inside a string or not */
-  int np = 0;       /* balance count between opening and closing parenthesis */
-  int nbk = 0;      /* balance count between opening and closing brackes */
-  int nbr = 0;      /* balance count between opening and closing braces */
+  /* NOTE: there is no correct default value for the previous character read,
+   * but EOF is a good representation of the fact that no valid character has
+   * been read yet. */
+  int c_prev = EOF;
+  /* We use a dedicated variable to check if we're escaping the current
+   * character instead of exploiting c_prev for a single reason: without it,
+   * we're unable to handle double consecutive backslashes, such as in
+   * "hello, world\\", in which case, without is_escaped, the last '"' character
+   * would be interpreted as an escape sequence. */
+  bool is_escaped = false;
+  /* Track if we've consumed a / which could result in a comment based on what
+   * character follows next. In case another / or a * follow, that would be the
+   * beginning of a comment, otherwise we should print the previously consumed
+   * single / and the new character. */
+  bool is_comment_start = false;
+  Status c_status = OUTSIDE; /* if we're inside a character constant or not */
+  Status s_status = OUTSIDE; /* if we're inside a string or not */
+  int num_paren = 0; /* balance count between opening and closing parenthesis */
+  int num_brackets = 0; /* balance count between opening and closing brackets */
+  int num_braces = 0;   /* balance count between opening and closing braces */
   while ((c = getchar()) != EOF) {
-    if (status == IN) {
-      if ((c == '\'' || c == '\"') && lc != '\\')
-        status = OUT;
+    if (c_status == INSIDE) {
+      /* If we find the closing ' character and it is not escaped, that marks
+       * the end of our character constant. */
+      if (c == '\'' && !is_escaped) {
+        c_status = OUTSIDE;
+      }
+      is_escaped = (c == '\\' && !is_escaped);
+    } else if (s_status == INSIDE) {
+      /* If we find the closing " character and it is not escaped, that marks
+       * the end of our string. */
+      if (c == '"' && !is_escaped) {
+        s_status = OUTSIDE;
+      }
+      is_escaped = (c == '\\' && !is_escaped);
     } else {
-      if (c == '\'' || c == '"') {
-        status = IN;
-      } else if (c == '/' && lc == '/') {
-        while ((c = getchar()) != EOF && c != '\n')
-          ;
-      } else if (c == '*' && lc == '/') {
-        while ((c = getchar()) != EOF && (c != '/' || lc != '*'))
-          lc = c;
+      if (c == '\'') {
+        c_status = INSIDE;
+      } else if (c == '\"') {
+        s_status = INSIDE;
+      } else if (c == '/') {
+        if (is_comment_start) {
+          /* Wait till the end of the line so that the comment ends. */
+          while ((c = getchar()) != EOF && c != '\n') {
+            ;
+          }
+          is_comment_start = false;
+        } else {
+          /* We keep track of the fact that we've encountered a / character
+           * which could result in a comment depending on the character consumed
+           * after the current one. */
+          is_comment_start = true;
+        }
+      } else if (c == '*') {
+        if (is_comment_start) {
+          /* Wait till we find the matching comment characters so that the
+           * comment ends. */
+          while ((c = getchar()) != EOF && !(c == '/' && c_prev == '*')) {
+            c_prev = c;
+          }
+          is_comment_start = false;
+        }
       } else {
         switch (c) {
           case '(':
-            ++np;
+            ++num_paren;
             break;
           case ')':
-            --np;
+            --num_paren;
             break;
           case '[':
-            ++nbk;
+            ++num_brackets;
             break;
           case ']':
-            --nbk;
+            --num_brackets;
             break;
           case '{':
-            ++nbr;
+            ++num_braces;
             break;
           case '}':
-            --nbr;
+            --num_braces;
             break;
           default:
             break;
         }
       }
+      is_escaped = false;
+      c_prev = c;
     }
-    lc = c;
   }
-  if (np != 0)
+  if (num_paren != 0)
     printf("Unbalanced parenthesis!\n");
-  if (nbk != 0)
-    printf("Unbalanced brackes!\n");
-  if (nbr != 0)
+  if (num_brackets != 0)
+    printf("Unbalanced brackets!\n");
+  if (num_braces != 0)
     printf("Unbalanced braces!\n");
   return EXIT_SUCCESS;
 }

@@ -20,8 +20,8 @@ int main(void) {
   return EXIT_SUCCESS;
 }
 
-/* When trying to print a string containing \c, where c is some character not
- * listed above, the compiler might issue a warning during compilation
- * indicating that the specified \c escape sequence is unknown.
- * Most compilers will handle such cases by simply printing the character c,
- * but the behavior is undefined according to the C standard. */
+/* When trying to print a string containing \c, where c is some character that
+ * is not a known escape sequence, the compiler might issue a warning during
+ * compilation pointing to the issue. Most compilers will handle such cases by
+ * simply printing the character c, but the behavior is undefined according to
+ * the C standard. */

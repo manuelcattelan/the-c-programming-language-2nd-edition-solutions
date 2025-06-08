@@ -1,64 +1,99 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-enum boolean {
-  OUT, /* state that represents being inside a word */
-  IN   /* state that represents being outside a word */
-};
+typedef enum {
+  /* Status that represents being outside a string or character constant */
+  OUTSIDE,
+  /* Status that represents being inside a string or character constant  */
+  INSIDE
+} Status;
 
 int main(void) {
   int c;
-  /* NOTE: there is no correct default value for the last seen character, but
-   * EOF is a good representation of the fact that no valid character has been
-   * read yet, making it a great choice for our usecase. */
-  int lc = EOF;
-  int sstatus = OUT; /* tracks if we're currently inside a string or not */
-  int cstatus = OUT; /* tracks if we're currently inside a comment or not */
+  /* NOTE: there is no correct default value for the previous character read,
+   * but EOF is a good representation of the fact that no valid character has
+   * been read yet. */
+  int c_prev = EOF;
+  /* We use a dedicated variable to check if we're escaping the current
+   * character instead of exploiting c_prev for a single reason: without it,
+   * we're unable to handle double consecutive backslashes, such as in
+   * "hello, world\\", in which case, without is_escaped, the last '"' character
+   * would be interpreted as an escape sequence. */
+  bool is_escaped = false;
+  /* Track if we've consumed a / which could result in a comment based on what
+   * character follows next. In case another / or a * follow, that would be the
+   * beginning of a comment, otherwise we should print the previously consumed
+   * single / and the new character. */
+  bool is_comment_start = false;
+  Status c_status = OUTSIDE; /* if we're inside a character constant or not */
+  Status s_status = OUTSIDE; /* if we're inside a string or not */
   while ((c = getchar()) != EOF) {
-    if (sstatus == IN) {
+    if (c_status == INSIDE) {
       putchar(c);
-      if ((c == '\'' || c == '\"') && lc != '\\')
-        sstatus = OUT;
-    } else {
-      if (c == '\'' || c == '"') {
-        putchar(c);
-        sstatus = IN;
-      } else if (c == '/' && lc == '/') {
-        /* When we find two consecutive '/' characters, the only thing we do
-         * is wait for the newline character to resume evaluating characters,
-         * since that entire line will be a comment. */
-        cstatus = IN;
-        while ((c = getchar()) != EOF && c != '\n')
-          ;
-        if (c == '\n')
-          putchar(c);
-        cstatus = OUT;
-      } else if (c == '*' && lc == '/') {
-        /* When we find a `/` character followed by `*` character and assuming
-         * the input is valid C syntax, the only thing we do is wait for the
-         * closing `*` character followed by `/` character to resume evaluating
-         * characters, since that entire line will be a comment. */
-        cstatus = IN;
-        while ((c = getchar()) != EOF && (c != '/' || lc != '*'))
-          lc = c;
-        /* Even if we could, we do not set `cstatus = OUT` immediately here as
-         * we use it to understand if a possible trailing `/` was part of a
-         * comment and thus should not be printed or if it was a single `/`,
-         * which should be printed. */
-      } else {
-        /* Wait for what comes after a `/` before printing it when we first read
-         * it and we haven't read another one before it, since we're not sure it
-         * is going to be followed by another `/` and thus become a comment. */
-        if (lc == '/' && cstatus == OUT)
-          putchar('/');
-        /* We print a single `/` character in the line above if it was not part
-         * of a comment. */
-        if (c != '/')
-          putchar(c);
-        cstatus = OUT;
+      /* If we find the closing ' character and it is not escaped, that marks
+       * the end of our character constant. */
+      if (c == '\'' && !is_escaped) {
+        c_status = OUTSIDE;
       }
+      is_escaped = (c == '\\' && !is_escaped);
+    } else if (s_status == INSIDE) {
+      putchar(c);
+      /* If we find the closing " character and it is not escaped, that marks
+       * the end of our string. */
+      if (c == '"' && !is_escaped) {
+        s_status = OUTSIDE;
+      }
+      is_escaped = (c == '\\' && !is_escaped);
+    } else {
+      if (c == '\'') {
+        putchar(c);
+        c_status = INSIDE;
+      } else if (c == '\"') {
+        putchar(c);
+        s_status = INSIDE;
+      } else if (c == '/') {
+        if (is_comment_start) {
+          /* Wait till the end of the line so that the comment ends. */
+          while ((c = getchar()) != EOF && c != '\n') {
+            ;
+          }
+          is_comment_start = false;
+        } else {
+          /* We keep track of the fact that we've encountered a / character
+           * which could result in a comment depending on the character consumed
+           * after the current one. */
+          is_comment_start = true;
+        }
+      } else if (c == '*') {
+        if (is_comment_start) {
+          /* Wait till we find the matching comment characters so that the
+           * comment ends. */
+          while ((c = getchar()) != EOF && !(c == '/' && c_prev == '*')) {
+            c_prev = c;
+          }
+          is_comment_start = false;
+        } else {
+          putchar(c);
+        }
+      } else {
+        /* If the previous character we encountered was a / and it was not part
+         * of a comment, we should flush it now, before the one we've just
+         * consumed. */
+        if (is_comment_start) {
+          putchar('/');
+          is_comment_start = false;
+        }
+        putchar(c);
+      }
+      is_escaped = false;
+      c_prev = c;
     }
-    lc = c;
+  }
+  /* If the input ends with a / character, it should be flushed at the end of
+   * execution. */
+  if (is_comment_start) {
+    putchar('/');
   }
   return EXIT_SUCCESS;
 }

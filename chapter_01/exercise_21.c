@@ -5,23 +5,38 @@
 
 int main(void) {
   int c;
-  int cpos = 0; /* character position inside the current line */
-  int nb = 0;   /* number of consecutive blanks */
+  /* This keeps track of the character position inside the current line, but it
+   * does not necessarily reflect the number of characters that we've printed
+   * in the output at a given moment. This is because we defer printing blank
+   * characters only when we know we can't expand those to tab characters. */
+  int c_pos = 0;
+  int num_blanks = 0; /* number of consecutive blank characters */
   while ((c = getchar()) != EOF) {
     if (c == ' ') {
-      ++cpos;
-      ++nb;
-      if ((cpos % TABSTOPS) == 0) {
+      ++c_pos;
+      ++num_blanks;
+      if ((c_pos % TABSTOPS) == 0) {
         putchar('\t');
-        nb = 0;
+        num_blanks = 0;
       }
     } else {
-      if (nb > 0)
-        for (int i = 0; i < nb; ++i)
+      /* If the number of consecutive encountered blanks here is non-zero, that
+       * means we've found a number of them that wasn't enough to be converted
+       * into a tab character. Since we do not immediately print out blank
+       * characters, the following for-loop flushes all consumed blanks that
+       * were encountered before the current non-blank character. */
+      if (num_blanks > 0) {
+        for (int i = 0; i < num_blanks; ++i) {
           putchar(' ');
-      nb = 0;
+        }
+      }
+      num_blanks = 0;
+      if (c == '\t') {
+        c_pos += TABSTOPS - (c_pos % TABSTOPS);
+      } else {
+        c_pos = (c == '\n') ? 0 : c_pos + 1;
+      }
       putchar(c);
-      cpos = (c == '\n') ? 0 : cpos + 1;
     }
   }
   return EXIT_SUCCESS;

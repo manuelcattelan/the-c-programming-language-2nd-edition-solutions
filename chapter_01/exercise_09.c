@@ -3,14 +3,15 @@
 
 int main(void) {
   int c;
-  /* NOTE: there is no correct default value for the last seen character, but
-   * EOF is a good representation of the fact that no valid character has been
-   * read yet, making it a great choice for our usecase. */
-  int lc = EOF;
+  /* NOTE: there is no correct default value for the previous character read,
+   * but EOF is a good representation of the fact that no valid character has
+   * been read yet. */
+  int c_prev = EOF;
   while ((c = getchar()) != EOF) {
-    if (c != ' ' || (c == ' ' && lc != ' '))
+    if (c != ' ' || (c == ' ' && c_prev != ' ')) {
       putchar(c);
-    lc = c;
+    }
+    c_prev = c;
   }
   return EXIT_SUCCESS;
 }

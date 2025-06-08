@@ -5,16 +5,16 @@
 
 int main(void) {
   int c;
-  int cpos = 0; /* character position inside the current line */
+  int c_pos = 0; /* character position inside the current line */
   while ((c = getchar()) != EOF) {
     if (c == '\t') {
-      int nb = TABSTOPS - (cpos % TABSTOPS);
-      for (int i = 0; i < nb; ++i)
+      int num_blanks = TABSTOPS - (c_pos % TABSTOPS);
+      for (int i = 0; i < num_blanks; ++i, ++c_pos) {
         putchar(' ');
-      cpos += nb;
+      }
     } else {
       putchar(c);
-      cpos = (c == '\n') ? 0 : cpos + 1;
+      c_pos = (c == '\n') ? 0 : c_pos + 1;
     }
   }
   return EXIT_SUCCESS;
@@ -23,4 +23,4 @@ int main(void) {
 /* The number of tabstops is better suited to be a symbolic parameter as this
  * allows us to define it's value only once, improving our program's
  * mantainability and making it easier to customize it's value in the future if
- * necessary. */
+ * necessary by only needing to edit it in one place. */
