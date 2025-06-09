@@ -1,13 +1,15 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAXLEN 1000 /* maximum length for starting string */
+#define MAX_STRING_LEN 1000
 
-void escape(char s[], char t[]);
-void unescape(char s[], char t[]);
+void escape(const char from[], char to[]);
+void unescape(const char from[], char to[]);
 
 int main(void) {
-  char s1[MAXLEN] = "This string contains both a newline \n and a tab \t.";
+  char s1[MAX_STRING_LEN] =
+      "This string contains both a newline \n and a tab \t.";
   /* The length of t1 should take into consideration that at most MAXLEN - 1
    * characters of s1 may be newlines or tabs, since the last one is always
    * the null character \0 for terminating the string. For that reason, since
@@ -15,63 +17,74 @@ int main(void) {
    * characters) to 2-byte ones (their visible representation), we should
    * multiply the length of the starting string s1 by 2 and make space for the
    * null character too. */
-  char t1[(MAXLEN - 1) * 2 + 1];
-  char s2[MAXLEN] = "This string contains both a newline \\n and a tab \\t.";
+  char s1_escaped[(MAX_STRING_LEN - 1) * 2 + 1];
+  char s2[MAX_STRING_LEN] =
+      "This string contains both a newline \\n and a tab \\t.";
   /* The length of t2 should take into consideration that we're going from the
    * visible representation of newline and tab characters to the actual
    * characters (\n and \t), hence it will be at most the same as the length of
    * s2 because we're converting any potential "\\n" and "\\t" into their 1-byte
    * character representation. */
-  char t2[MAXLEN];
-  escape(s1, t1);
-  printf("s1: %s\nt1: %s\n", s1, t1);
-  unescape(s2, t2);
-  printf("s2: %s\nt2: %s\n", s2, t2);
+  char s2_unescaped[MAX_STRING_LEN];
+  escape(s1, s1_escaped);
+  printf("s1: %s\nt1: %s\n", s1, s1_escaped);
+  unescape(s2, s2_unescaped);
+  printf("s2: %s\nt2: %s\n", s2, s2_unescaped);
   return EXIT_SUCCESS;
 }
 
-void escape(char s[], char t[]) {
-  int j = 0;
-  for (int i = 0; s[i] != '\0'; ++i) {
-    switch (s[i]) {
+void escape(const char from[], char to[]) {
+  int to_idx = 0;
+  for (int from_idx = 0; from[from_idx] != '\0'; ++from_idx) {
+    switch (from[from_idx]) {
       case '\n':
-        t[j++] = '\\';
-        t[j++] = 'n';
+        to[to_idx++] = '\\';
+        to[to_idx++] = 'n';
         break;
       case '\t':
-        t[j++] = '\\';
-        t[j++] = 't';
+        to[to_idx++] = '\\';
+        to[to_idx++] = 't';
         break;
       default:
-        t[j++] = s[i];
+        to[to_idx++] = from[from_idx];
         break;
     }
   }
-  t[j] = '\0';
+  to[to_idx] = '\0';
 }
 
-void unescape(char s[], char t[]) {
-  int lc = EOF;
-  int i = 0;
-  int j = 0;
-  while (s[i] != '\0') {
-    if (s[i] != '\\') {
-      if (lc == '\\') {
-        switch (s[i]) {
-          case 'n':
-            t[j++] = '\n';
-            break;
-          case 't':
-            t[j++] = '\t';
-            break;
-          default:
-            t[j++] = '\\';
-            t[j++] = s[i];
-            break;
-        }
-      } else
-        t[j++] = s[i];
+void unescape(const char from[], char to[]) {
+  int from_idx = 0;
+  int to_idx = 0;
+  /* We use a dedicated variable to check if we're escaping the current
+   * character instead of exploiting c_prev for a single reason: without it,
+   * we're unable to handle double consecutive backslashes, such as in
+   * "hello, world\\", in which case, without is_escaped, the last '"' character
+   * would be interpreted as an escape sequence. */
+  bool is_escaped = false;
+  while (from[from_idx] != '\0') {
+    char c = from[from_idx];
+    if (is_escaped) {
+      switch (c) {
+        case 'n':
+          to[to_idx++] = '\n';
+          break;
+        case 't':
+          to[to_idx++] = '\t';
+          break;
+        default:
+          to[to_idx++] = '\\';
+          to[to_idx++] = c;
+          break;
+      }
+    } else if (c != '\\') {
+      to[to_idx++] = c;
     }
-    lc = s[i++];
+    is_escaped = (c == '\\' && !is_escaped);
+    from_idx++;
   }
+  if (is_escaped) {
+    to[to_idx++] = '\\';
+  }
+  to[to_idx] = '\0';
 }

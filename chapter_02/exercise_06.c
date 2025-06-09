@@ -21,8 +21,8 @@ unsigned setbits(unsigned x, int p, int n, unsigned y) {
    * we're considering at position p. */
   unsigned y_mask_shifted = y_mask << (p + 1 - n);
   /* We clear (set to 0) n bits starting from position p in x. */
-  unsigned x_mask = x & ~(~(~0 << n) << (p + 1 - n));
+  unsigned x_mask_shifted = x & ~(~(~0 << n) << (p + 1 - n));
   /* We OR both bytes together, resulting in n bytes from position p in x to be
    * equal to n bytes from position p in y. */
-  return x_mask | y_mask_shifted;
+  return x_mask_shifted | y_mask_shifted;
 }

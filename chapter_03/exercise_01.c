@@ -1,29 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int binsearch(int x, int v[], int n);
+#define VECTOR_LEN 10
+
+int binsearch(int target, const int val_array[], int val_array_len);
 
 int main(void) {
-  int x = 1;
-  int v[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  int n = 10;
-  printf("%d\n", binsearch(x, v, n));
+  int target = 1;
+  int val_array[VECTOR_LEN] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  printf("%d\n", binsearch(target, val_array, VECTOR_LEN));
   return EXIT_SUCCESS;
 }
 
-int binsearch(int x, int v[], int n) {
-  int l = 0;     /* lower bound for range in which to search for x inside v */
-  int h = n - 1; /* upper bound for range in which to search for x inside v */
-  int m = (l + h) / 2; /* intermediate index between lower and upper bound */
-  while (l <= h && v[m] != x) {
-    if (x < v[m])
-      h = m - 1;
-    else
-      l = m + 1;
-    m = (l + h) / 2;
+int binsearch(int target, const int val_array[], int val_array_len) {
+  /* Lower bound for range in which to search for x inside v */
+  int low = 0;
+  /* Upper bound for range in which to search for x inside v */
+  int high = val_array_len - 1;
+  /* Intermediate index between lower and upper bound */
+  int mid = (low + high) / 2;
+  while (low <= high && val_array[mid] != target) {
+    if (target < val_array[mid]) {
+      high = mid - 1;
+    } else {
+      low = mid + 1;
+    }
+    mid = (low + high) / 2;
   }
-  if (v[m] == x)
-    return m;
+  if (val_array[mid] == target) {
+    return mid;
+  }
   return -1;
 }
 
