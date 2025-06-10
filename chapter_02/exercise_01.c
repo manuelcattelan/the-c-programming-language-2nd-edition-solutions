@@ -27,5 +27,6 @@ int main(void) {
   printf("%Le\n",
          LDBL_MIN); /* minimum positive normalized value for long double */
   printf("%Le\n", LDBL_MAX); /* maximum value for long double */
+
   return EXIT_SUCCESS;
 };

@@ -13,6 +13,7 @@ int main(void) {
 
 int count_bits(unsigned x) {
   int num_bits = 0;
+
   /* This works because in a two's complement number system, x &= (x - 1)
    * deletes the rightmost 1-bit in x, which is the result of the fact that by
    * subtracting 1 to x, we're always turning the rightmost 1-bit of x to 0,
