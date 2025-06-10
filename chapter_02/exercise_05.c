@@ -1,20 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int any(const char s1[], const char s2[]);
+int find_any_char(const char from[], const char chars[]);
 
 int main(void) {
-  char s1[] = "hello, world!";
-  char s2[] = "w";
-  printf("%d\n", any(s1, s2));
+  char from[] = "hello, world!";
+  char chars[] = "w";
+
+  printf("%d\n", find_any_char(from, chars));
+
   return EXIT_SUCCESS;
 }
 
-int any(const char s1[], const char s2[]) {
-  for (int s1_idx = 0; s1[s1_idx] != '\0'; s1_idx++) {
-    for (int s2_idx = 0; s2[s2_idx] != '\0'; s2_idx++) {
-      if (s2[s2_idx] == s1[s1_idx]) {
-        return s1_idx;
+int find_any_char(const char from[], const char chars[]) {
+  for (int i = 0; from[i] != '\0'; i++) {
+    for (int j = 0; chars[j] != '\0'; j++) {
+      if (from[i] == chars[j]) {
+        return i;
       }
     }
   }

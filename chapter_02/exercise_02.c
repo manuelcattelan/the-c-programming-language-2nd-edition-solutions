@@ -5,8 +5,9 @@
 
 int main(void) {
   int c;
-  int c_pos = 0; /* character position inside the current line */
+  int c_pos = 0;
   char s[MAX_STRING_LEN];
+
   while (c_pos < MAX_STRING_LEN - 1) {
     if ((c = getchar()) != '\n') {
       if (c != EOF) {
@@ -14,5 +15,6 @@ int main(void) {
       }
     }
   }
+
   return EXIT_SUCCESS;
 }

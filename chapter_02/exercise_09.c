@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int bitcount(unsigned x);
+int count_bits(unsigned x);
 
 int main(void) {
   unsigned x = 255;
-  printf("%d\n", bitcount(x));
+
+  printf("%d\n", count_bits(x));
+
   return EXIT_SUCCESS;
 }
 
-int bitcount(unsigned x) {
-  int num_bits;
+int count_bits(unsigned x) {
+  int num_bits = 0;
   /* This works because in a two's complement number system, x &= (x - 1)
    * deletes the rightmost 1-bit in x, which is the result of the fact that by
    * subtracting 1 to x, we're always turning the rightmost 1-bit of x to 0,
@@ -18,8 +20,9 @@ int bitcount(unsigned x) {
    * of that 1-bit remain unchanged. The result is that using the AND operator
    * with the initial x and (x - 1), any bit from the position of the leftmost
    * (included) will become 0. */
-  for (num_bits = 0; x != 0; x &= (x - 1)) {
+  for (; x != 0; x &= (x - 1)) {
     num_bits++;
   }
+
   return num_bits;
 }
