@@ -11,7 +11,7 @@ typedef enum {
 
 int main(void) {
   int c;
-  /* NOTE: there is no correct default value for the previous character read,
+  /* There is no correct default value for the previous character read,
    * but EOF is a good representation of the fact that no valid character has
    * been read yet. */
   int c_prev = EOF;
@@ -31,6 +31,7 @@ int main(void) {
   int num_paren = 0; /* balance count between opening and closing parenthesis */
   int num_brackets = 0; /* balance count between opening and closing brackets */
   int num_braces = 0;   /* balance count between opening and closing braces */
+
   while ((c = getchar()) != EOF) {
     if (c_status == INSIDE) {
       /* If we find the closing ' character and it is not escaped, that marks
@@ -101,11 +102,16 @@ int main(void) {
       c_prev = c;
     }
   }
-  if (num_paren != 0)
+
+  if (num_paren != 0) {
     printf("Unbalanced parenthesis!\n");
-  if (num_brackets != 0)
+  }
+  if (num_brackets != 0) {
     printf("Unbalanced brackets!\n");
-  if (num_braces != 0)
+  }
+  if (num_braces != 0) {
     printf("Unbalanced braces!\n");
+  }
+
   return EXIT_SUCCESS;
 }

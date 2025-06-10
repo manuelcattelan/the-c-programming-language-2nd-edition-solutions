@@ -3,27 +3,36 @@
 #include <stdlib.h>
 
 typedef enum {
-  OUTSIDE, /* status that represents being outside a word while reading input */
-  INSIDE   /* status that represents being inside a word while reading input */
+  OUTSIDE, /* status that represents being outside a word */
+  INSIDE   /* status that represents being inside a word */
 } WordStatus;
 
 int main(void) {
   int c;
   WordStatus w_status = OUTSIDE;
+
   while ((c = getchar()) != EOF) {
-    if (!isspace(c)) {
+    /* The definition of word for this program is any sequence of characters
+     * that does not contain a white-space character (not to be confused with
+     * the blank character). */
+    if (isspace(c)) {
+      if (w_status == INSIDE) {
+        putchar('\n');
+        w_status = OUTSIDE;
+      }
+    } else {
       putchar(c);
-      w_status = INSIDE;
-    } else if (w_status == INSIDE) {
-      putchar('\n');
-      w_status = OUTSIDE;
+      if (w_status == OUTSIDE) {
+        w_status = INSIDE;
+      }
     }
   }
-  /* This handles the case where the input ends with a non-space character like
-   * which would be otherwise caught by the if-statement at line 13 so that we
-   * print a trailing newline after the last word in the input. */
+  /* It may be the case that input does not end with a white-space character and
+   * the following handle just that, printing a newline character after we've
+   * finished reading from input if we were still inside a word.*/
   if (w_status == INSIDE) {
     putchar('\n');
   }
+
   return EXIT_SUCCESS;
 }

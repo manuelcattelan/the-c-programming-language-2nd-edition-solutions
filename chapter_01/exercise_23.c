@@ -11,7 +11,7 @@ typedef enum {
 
 int main(void) {
   int c;
-  /* NOTE: there is no correct default value for the previous character read,
+  /* There is no correct default value for the previous character read,
    * but EOF is a good representation of the fact that no valid character has
    * been read yet. */
   int c_prev = EOF;
@@ -28,6 +28,7 @@ int main(void) {
   bool is_comment_start = false;
   Status c_status = OUTSIDE; /* if we're inside a character constant or not */
   Status s_status = OUTSIDE; /* if we're inside a string or not */
+
   while ((c = getchar()) != EOF) {
     if (c_status == INSIDE) {
       putchar(c);
@@ -95,5 +96,6 @@ int main(void) {
   if (is_comment_start) {
     putchar('/');
   }
+
   return EXIT_SUCCESS;
 }

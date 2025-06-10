@@ -3,6 +3,7 @@
 
 int main(void) {
   int c;
+
   while ((c = getchar()) != EOF) {
     switch (c) {
       case '\t':
@@ -19,5 +20,6 @@ int main(void) {
         break;
     }
   }
+
   return EXIT_SUCCESS;
 }
