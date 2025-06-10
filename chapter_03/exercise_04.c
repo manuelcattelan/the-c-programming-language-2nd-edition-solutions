@@ -4,40 +4,49 @@
 
 #define MAX_STRING_LEN 1000
 
-void itoa(int n, char s[]);
-void reverse(char s[]);
+void integer_to_s(int from, char to[]);
+void reverse_s(char s[]);
 
 int main(void) {
-  int n = 255;
-  char s[MAX_STRING_LEN];
-  itoa(n, s);
-  printf("n: %d\ns: %s\n", n, s);
+  int from = 255;
+  char to[MAX_STRING_LEN];
+
+  integer_to_s(from, to);
+  printf("from: %d\nto: %s\n", from, to);
+
   return EXIT_SUCCESS;
 }
 
-void itoa(int n, char s[]) {
+void integer_to_s(int from, char to[]) {
   int i = 0;
-  /* This is the most important part of the program, which avoids overflow in
-   * the original program when trying to negate the largest negative number. In
-   * this case, instead of negating n directly, we use the abs function below
-   * and add the sign manually, if needed. */
-  int i_sign = n;
+  /* Do not negate from directly at the beginning since it could lead to
+   * overflow, if from is the largest negative integer INT_MIN. */
+  int sign = from;
+
   do {
-    s[i++] = abs(n % 10) + '0';
-  } while ((n /= 10) != 0);
-  if (i_sign < 0) {
-    s[i++] = '-';
+    /* The conversion happens by getting the last digit of from using the modulo
+     * operator with absolute value (to handle negative numbers correctly) and
+     * by adding '0' to the result in order to convert the digit to its
+     * corresponding character. */
+    to[i++] = abs(from % 10) + '0';
+    /* At each iteration, we divide from by 10 to remove the last digit (the
+     * one we have just handled) until from is non-0. */
+  } while ((from /= 10) != 0);
+  if (sign < 0) {
+    to[i++] = '-';
   }
-  s[i] = '\0';
-  reverse(s);
+  to[i] = '\0';
+
+  reverse_s(to);
 }
 
-void reverse(char s[]) {
-  int s_len = strlen(s);
-  for (int i = 0; i < s_len / 2; ++i) {
-    char c_tmp = s[i];
-    s[i] = s[s_len - 1 - i];
-    s[s_len - 1 - i] = c_tmp;
+void reverse_s(char s[]) {
+  int right = strlen(s) - 1;
+
+  for (int left = 0; left < right; ++left, --right) {
+    char c_tmp = s[left];
+    s[left] = s[right];
+    s[right] = c_tmp;
   }
 }
 

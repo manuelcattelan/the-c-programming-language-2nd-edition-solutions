@@ -4,45 +4,64 @@
 
 #define MAX_STRING_LEN 1000
 
-void itob(int n, char s[], int b);
-void reverse(char s[]);
+void integer_to_s_with_base(int from, char to[], int base);
+void reverse_s(char s[]);
 
 int main(void) {
-  int n = 255;
-  char s[MAX_STRING_LEN];
-  itob(n, s, 8);
-  printf("n: %d\ns: %s\n", n, s);
-  itob(n, s, 10);
-  printf("n: %d\ns: %s\n", n, s);
-  itob(n, s, 16);
-  printf("n: %d\ns: %s\n", n, s);
+  int from = 255;
+  char to[MAX_STRING_LEN];
+  int base;
+
+  base = 8;
+  integer_to_s_with_base(from, to, base);
+  printf("from: %d\nbase: %d\nto: %s\n", from, base, to);
+
+  base = 10;
+  integer_to_s_with_base(from, to, base);
+  printf("from: %d\nbase: %d\nto: %s\n", from, base, to);
+
+  base = 16;
+  integer_to_s_with_base(from, to, base);
+  printf("from: %d\nbase: %d\nto: %s\n", from, base, to);
+
   return EXIT_SUCCESS;
 }
 
-void itob(int n, char s[], int b) {
+void integer_to_s_with_base(int from, char to[], int base) {
   int i = 0;
-  int i_sign = n;
+  /* Do not negate from directly at the beginning since it could lead to
+   * overflow, if from is the largest negative integer INT_MIN. */
+  int sign = from;
+
   do {
-    int n_converted = abs(n % b);
-    if (n_converted >= 10) {
-      n_converted += 'A' - 10;
+    /* The conversion happens by getting the last digit of from using the modulo
+     * operator with absolute value (to handle negative numbers correctly) and
+     * by adding '0' or ('A' - 10) to the result in order to convert the digit
+     * to its corresponding character. */
+    int from_converted = abs(from % base);
+    if (from_converted >= 10) {
+      from_converted += 'A' - 10;
     } else {
-      n_converted += '0';
+      from_converted += '0';
     }
-    s[i++] = n_converted;
-  } while ((n /= b) != 0);
-  if (i_sign < 0) {
-    s[i++] = '-';
+    to[i++] = from_converted;
+    /* At each iteration, we divide from by base to remove the last digit (the
+     * one we have just handled) until from is non-0. */
+  } while ((from /= base) != 0);
+  if (sign < 0) {
+    to[i++] = '-';
   }
-  s[i] = '\0';
-  reverse(s);
+  to[i] = '\0';
+
+  reverse_s(to);
 }
 
-void reverse(char s[]) {
-  int s_len = strlen(s);
-  for (int i = 0; i < s_len / 2; ++i) {
-    char c_tmp = s[i];
-    s[i] = s[s_len - 1 - i];
-    s[s_len - 1 - i] = c_tmp;
+void reverse_s(char s[]) {
+  int right = strlen(s) - 1;
+
+  for (int left = 0; left < right; ++left, --right) {
+    char c_tmp = s[left];
+    s[left] = s[right];
+    s[right] = c_tmp;
   }
 }

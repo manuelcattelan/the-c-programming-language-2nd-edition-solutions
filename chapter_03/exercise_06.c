@@ -4,39 +4,54 @@
 
 #define MAX_STRING_LEN 1000
 
-void itoa(int n, char s[], int w);
-void reverse(char s[]);
+void integer_to_s_with_min_width(int from, char to[], int min_width);
+void reverse_s(char s[]);
 
 int main(void) {
-  int n = 255;
+  int from = 255;
+  char to[MAX_STRING_LEN];
   int min_width = 8;
-  char s[MAX_STRING_LEN];
-  itoa(n, s, min_width);
-  printf("n: %d\nw: %d\ns: %s\n", n, min_width, s);
+
+  integer_to_s_with_min_width(from, to, min_width);
+  printf("from: %d\nmin_width: %d\nto: %s\n", from, min_width, to);
+
   return EXIT_SUCCESS;
 }
 
-void itoa(int n, char s[], int w) {
+void integer_to_s_with_min_width(int from, char to[], int min_width) {
   int i = 0;
-  int i_sign = n;
+  /* Do not negate from directly at the beginning since it could lead to
+   * overflow, if from is the largest negative integer INT_MIN. */
+  int sign = from;
+
   do {
-    s[i++] = abs(n % 10) + '0';
-  } while ((n /= 10) != 0);
-  if (i_sign < 0) {
-    s[i++] = '-';
+    /* The conversion happens by getting the last digit of from using the modulo
+     * operator with absolute value (to handle negative numbers correctly) and
+     * by adding '0' to the result in order to convert the digit to its
+     * corresponding character. */
+    to[i++] = abs(from % 10) + '0';
+    /* At each iteration, we divide from by 10 to remove the last digit (the
+     * one we have just handled) until from is non-0. */
+  } while ((from /= 10) != 0);
+  if (sign < 0) {
+    to[i++] = '-';
   }
-  while (i < w) {
-    s[i++] = ' ';
+  /* If the resulting string isn't long enough, tab it with spaces to match
+   * the provided min_width. */
+  while (i < min_width) {
+    to[i++] = ' ';
   }
-  s[i] = '\0';
-  reverse(s);
+  to[i] = '\0';
+
+  reverse_s(to);
 }
 
-void reverse(char s[]) {
-  int s_len = strlen(s);
-  for (int i = 0; i < s_len / 2; ++i) {
-    char c_tmp = s[i];
-    s[i] = s[s_len - 1 - i];
-    s[s_len - 1 - i] = c_tmp;
+void reverse_s(char s[]) {
+  int right = strlen(s) - 1;
+
+  for (int left = 0; left < right; ++left, --right) {
+    char c_tmp = s[left];
+    s[left] = s[right];
+    s[right] = c_tmp;
   }
 }

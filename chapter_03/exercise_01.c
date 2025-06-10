@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define VECTOR_LEN 10
+#define VAL_ARRAY_LEN 10
 
-int binsearch(int target, const int val_array[], int val_array_len);
+int binary_search(int target, const int val_array[], int val_array_len);
 
 int main(void) {
-  int target = 1;
-  int val_array[VECTOR_LEN] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  printf("%d\n", binsearch(target, val_array, VECTOR_LEN));
+  int target = 2;
+  int val_array[VAL_ARRAY_LEN] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  printf("%d\n", binary_search(target, val_array, VAL_ARRAY_LEN));
+
   return EXIT_SUCCESS;
 }
 
-int binsearch(int target, const int val_array[], int val_array_len) {
+int binary_search(int target, const int val_array[], int val_array_len) {
   /* Lower bound for range in which to search for x inside v */
   int low = 0;
   /* Upper bound for range in which to search for x inside v */
