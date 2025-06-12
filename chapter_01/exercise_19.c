@@ -48,7 +48,7 @@ int read_line(char line[]) {
   line[c_pos] = '\0';
 
   /* The reason we return the size of everything that fit into our line array
-   * rather than the actual length of each input line is that this value isused
+   * rather than the actual length of each input line is that this value is used
    * later by the reverse_line function in order to know the length of the line
    * without having to re-compute it. */
   return c_pos;
