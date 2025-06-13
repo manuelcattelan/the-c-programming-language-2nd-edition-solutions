@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-/* The do-while pattern considered a standard when defining statement-like
+/* The do-while pattern is considered a standard when defining statement-like
  * macros because it allows the macro to behave exactly like a function call.
  * For example, this case would be problematic without the do-while pattern:
    if (condition)
